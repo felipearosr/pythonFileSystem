@@ -28,11 +28,11 @@ def ls(options):
       print(child["inode"], child["name"])
   elif "-R" in options:
     # Print current directory
-    print(cwd["name"] + white)
+    print(cwd["name"] + ":")
     for child in cwd["children"]:
       if child["type"] == "dir":
         # Print directory name
-        print(blue + "./" + child["name"]  + ":")
+        print(child["name"])
         # Change directory to child
         cd(child["name"])
         # Recursively call ls function
@@ -101,7 +101,7 @@ def touch(name):
   next_inode = 1  # Set initial inode value
   for child in cwd["children"]:
     if child["name"] == name:
-      print(red + "touch: cannot touch '" + name + "': File exists" + white)
+      print("touch: cannot touch '" + name + "': File exists")
       return
     else:
       child["last_accessed"] = datetime.datetime.now()
@@ -110,12 +110,12 @@ def touch(name):
       if "inode" in child:
         # Set inode value for next file
         next_inode = max(next_inode, child["inode"] + 1)
-      return
+  # Append new child to list of children in current working directory
   cwd["children"].append({
     "type": "file",
     "name": name,
     "children": [],
-    "inode": next_inode,  # Set inode attribute for new file
+    "inode": next_inode,  # Set inode value for new file
     "last_accessed": datetime.datetime.now(),
     "last_modified": datetime.datetime.now()
   })
@@ -136,6 +136,12 @@ def help():
   print(blue + "  cd <path>         " + white + "changes the current directory")
   print(blue + "  help              " + white + "displays this message")
   print(blue + "  pwd               " + white + "prints the current directory path (e.g. '/home/user/.../lab3')")
+  print(blue + "  tree              " + white + "prints the file system tree")
+
+def tree(node, depth=0):
+  print("  " * depth + "|-- " + node["name"])
+  for child in node["children"]:
+    tree(child, depth + 1)
 
 def main():
   while True:
@@ -158,6 +164,8 @@ def main():
       cd(command.split(" ")[1])
     elif command.startswith("touch"):
       touch(command.split(" ")[1])
+    elif command.startswith("tree"):
+      tree(root, 0)
     else:
       print("Command not found")
 
