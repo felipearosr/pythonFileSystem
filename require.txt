@@ -1,0 +1,12 @@
+I need a file system implementation on python that recreate the following commands using node to recreate an i-node:
+
+- ls
+- ls -i
+- ls -R
+- rm <name>
+- mv <old_name> <new_name>
+- mkdir <name>
+- touch <name>
+- cd <path> (path can be "..", this will return you 1 down or "" that will return you to the root)
+- exit
+- pwd

@@ -3,6 +3,7 @@ import os
 red = "\u001b[31;1m"
 cyan = "\u001b[36;1m"
 blue = "\u001b[34;1m"
+green = "\u001b[32;1m"
 white = "\u001b[37;1m"
 
 class Node:
@@ -15,7 +16,7 @@ class Node:
 
   def print_contents(self):
     for node in self.contents:
-      print(blue + node.name)
+      print(node.name)
 
   def print_inodes(self):
     for node in self.contents:
@@ -48,14 +49,18 @@ class Node:
   def cd(self, dirname):
     for node in self.contents:
       if node.name == dirname and node.is_dir:
-        return True
-    return False
+        return node
+    return None
+
 
   def get_node(self, name):
+    if name == "":
+      return self
     for node in self.contents:
       if node.name == name:
         return node
     return None
+
 
   def set_path(self, path):
     self.path = path
@@ -66,7 +71,6 @@ class Node:
     self.contents.append(node)
     node.path = os.path.join(self.path, node.name)
     node.set_path(node.path)
-
 
 class FileSystem:
   def __init__(self):
@@ -93,19 +97,27 @@ class FileSystem:
     self.root.add_node(Node(filename))
 
   def cd(self, dirname):
-    if self.root.cd(dirname) == True:
-      path_parts = self.root.path.split(os.path.sep)[1:-1]
-      new_root = self.root
-      for part in path_parts:
-        new_root = new_root.get_node(part)
-      self.root = self.root.get_node(dirname)
-    elif self.root.cd(dirname) == False:
-      self.root = self.root
+    if dirname == "..":
+      parent_dir = os.path.dirname(self.root.path)
+      if parent_dir != self.root.path:
+        self.root = self.get_node(os.path.basename(parent_dir))
+    elif dirname == "":
+      self.root = self.get_node("/")
     else:
-      self.root = self.root.get_node(dirname)
+      new_root = self.root.cd(dirname)
+      if new_root:
+        path_parts = self.root.path.split(os.path.sep)[1:-1]
+        for part in path_parts:
+          new_root = new_root.get_node(part)
+        self.root = new_root
+      else:
+        print(red + "Directory does not exist." + white)
+  
+  def get_node(self, name):
+    return self.root.get_node(name)
   
   def pwd(self):
-    print(self.root.path)
+    print(green + self.root.path+ white)
 
   def help(self):
     print(white + "Available commands:")
@@ -131,8 +143,8 @@ def main():
   running = True
   while running:
     print()
-    print(blue + fs.root.path + white, end="")
-    user_input = input("$")
+    print(blue + fs.root.path + white + "$", end="")
+    user_input = input()
     command = user_input.split(" ")[0]
     if command == "ls":
       flags = user_input.split(" ")[1] if len(  
@@ -164,7 +176,7 @@ def main():
     elif command == "exit":
       running = fs.exit()
     else:
-      print(red + "Command not found. Type 'help' for a list of available commands.")
+      print(red + "Command not found. Type 'help' for a list of available commands." + white)
 
 if __name__ == "__main__":
     main()
