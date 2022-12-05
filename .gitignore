@@ -1,1 +1,8 @@
-.a.out filesystem.cpp fs.cpp lab.c newdir newdir/a script.sh
+.a.out
+filesystem.cpp
+fs.cpp
+lab.c
+newdir 
+newdir/a
+script.sh
+a.out
